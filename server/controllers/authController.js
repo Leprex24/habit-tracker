@@ -16,7 +16,14 @@ const register = async (req, res) => {
         const user = new User({ ...req.body, password: hashedPassword })
         await user.save()
 
-        res.status(201).json({ message: 'Konto zostało utworzone' })
+        const token = user.generateAuthToken()
+        res.status(201).json({ token, user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            },
+        })
     } catch (err) {
         res.status(500).json({ message: 'Błąd serwera'})
     }
