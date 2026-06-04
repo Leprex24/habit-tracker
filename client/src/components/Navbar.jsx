@@ -16,6 +16,7 @@ const Navbar = () => {
             <div style={styles.links}>
                 <Link to="/" style={styles.link}>Dzisiaj</Link>
                 <Link to="/habits" style={styles.link}>Moje nawyki</Link>
+                <Link to="/stats" style={styles.link}>Statystyki</Link>
                 <span style={styles.user}>Hej, {user?.firstName}</span>
                 <button onClick={handleLogout} style={styles.btn}>Wyloguj</button>
             </div>
