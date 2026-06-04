@@ -1,0 +1,25 @@
+# Zależności
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Zmienne środowiskowe
+.env
+.env.local
+.env.production
+**/.env
+
+# Build Reacta
+client/build/
+
+# IDE
+.idea/
+.vscode/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Logi
+*.log
+npm-debug.log*
