@@ -87,7 +87,7 @@ const styles = {
     container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' },
     card: { background: '#fff', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px rgba(0,0,0,0.1)', width: '360px' },
     input: { display: 'block', width: '100%', padding: '0.6rem', marginBottom: '1rem', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' },
-    button: { width: '100%', padding: '0.7rem', background: '#4136fd', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' },
+    button: { width: '100%', padding: '0.7rem', background: '#6c63ff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' },
     error: { color: 'red', marginBottom: '1rem', fontSize: '0.9rem' },
 }
 
