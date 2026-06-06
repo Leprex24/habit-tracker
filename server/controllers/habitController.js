@@ -67,23 +67,70 @@ const toggleComplete = async (req, res) => {
         const habit = await Habit.findOne({ _id: req.params.id, userId: req.user._id })
         if (!habit) return res.status(404).json({ message: 'Nawyk nie znaleziony' })
 
-        const today = new Date();
-        today.setUTCHours(0, 0, 0, 0)
+        if (habit.frequency === 'weekly') {
+            const weekStart = new Date()
+            weekStart.setUTCHours(0,0,0,0)
+            const day = weekStart.getUTCDay()
+            weekStart.setUTCDate(weekStart.getUTCDate() - (day === 0 ? 6 : day - 1))
 
-        const alreadyDone = habit.completions.some(date => {
-            const d = new Date(date)
-            d.setUTCHours(0, 0, 0, 0)
-            return d.getTime() === today.getTime()
-        })
+            const weekEnd = new Date(weekStart)
+            weekEnd.setUTCDate(weekEnd.getUTCDay() + 6)
+            weekEnd.setUTCHours(23, 59, 59, 999)
 
-        if (alreadyDone) {
-            habit.completions = habit.completions.filter(date => {
+            const doneThisWeek = habit.completions.some(date => {
+                const d = new Date(date)
+                return d>= weekStart && d <= weekEnd
+            })
+
+            if (doneThisWeek) {
+                habit.compltions = habit.completions.filter(date => {
+                    const d = new Date(date)
+                    return d < weekStart || d > weekEnd
+                })
+            } else {
+                const today = new Date()
+                today.setUTCHours(0,0,0,0)
+                habit.completions.push(today)
+            }
+        } else if (habit.frequency === 'monthly') {
+            const now = new Date()
+            const year = now.getUTCFullYear()
+            const month = now.getUTCMonth()
+
+            const doneThisMonth = habit.completions.some(date => {
+                const d = new Date(date)
+                return d.getUTCFullYear() === year && d.getUTCMonth() === month
+            })
+
+            if (doneThisMonth) {
+                habit.completions = habit.completions.filter(date => {
+                    const d = new Date(date)
+                    return !(d.getUTCFullYear() === year && d.getUTCMonth() === month)
+                })
+            } else {
+                const today = new Date()
+                today.setUTCHours(0,0,0,0)
+                habit.completions.push(today)
+            }
+        } else {
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0)
+
+            const alreadyDone = habit.completions.some(date => {
                 const d = new Date(date)
                 d.setUTCHours(0, 0, 0, 0)
-                return d.getTime() !== today.getTime()
+                return d.getTime() === today.getTime()
             })
-        } else {
-            habit.completions.push(today)
+
+            if (alreadyDone) {
+                habit.completions = habit.completions.filter(date => {
+                    const d = new Date(date)
+                    d.setUTCHours(0, 0, 0, 0)
+                    return d.getTime() !== today.getTime()
+                })
+            } else {
+                habit.completions.push(today)
+            }
         }
 
         await habit.save()

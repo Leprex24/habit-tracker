@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../api/axios'
 import Navbar from "../components/Navbar"
-import { isCompletedToday } from "../utils/habitUtils"
+import { isCompletedInPeriod } from "../utils/habitUtils"
 
 const Dashboard = () => {
     const [loading, setLoading] = useState(true)
@@ -51,7 +51,7 @@ const Dashboard = () => {
 
                 <div style={styles.list}>
                     {habits.filter(h => h?._id).map(habit => {
-                        const done = isCompletedToday(habit.completions)
+                        const done = isCompletedInPeriod(habit.completions, habit.frequency)
                         return (
                             <div key={habit._id} style={{
                                 ...styles.card,
@@ -82,7 +82,7 @@ const Dashboard = () => {
 
                 {habits.length > 0 && (
                     <p style={styles.summary}>
-                        {habits.filter(h => isCompletedToday(h.completions)).length} / {habits.length} ukończonych dziś
+                        {habits.filter(h => isCompletedInPeriod(h.completions, h.frequency)).length} / {habits.length} ukończonych dziś
                     </p>
                 )}
             </div>

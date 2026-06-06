@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import api from '../api/axios'
 import Navbar from '../components/Navbar'
-import {getCurrentStreak, getLongestStreak, getLastNDays} from '../utils/habitUtils'
+import {getCurrentStreak, getLongestStreak, getLastNDays, getLastNWeeks, getLastNMonths } from '../utils/habitUtils'
 
 const StatsPage = () => {
     const [habits, setHabits] = useState([])
@@ -33,7 +33,9 @@ const StatsPage = () => {
                     const current = getCurrentStreak(habit.completions)
                     const longest = getLongestStreak(habit.completions)
                     const total = habit.completions.length
-                    const days = getLastNDays(habit.completions, 30)
+                    const heatmapData = habit.frequency === 'weekly' ? getLastNWeeks(habit.completions, 12) : habit.frequency === 'monthly' ? getLastNMonths(habit.completions, 12) : getLastNDays(habit.completions, 30)
+                    const heatmapLabel = habit.frequency === 'weekly' ? 'Ostatnie 12 tygodni' : habit.frequency === 'monthly' ? 'Ostatnie 12 miesięcy' : 'Ostatnie 30 dni'
+                    const streakLabel = habit.frequency === 'weekly' ? 'Łącznie tygodni' : habit.frequency === 'monthly' ? 'Łącznie miesięcy' : 'Łącznie dni'
 
                     return (
                         <div key={habit._id} style={{...styles.card, borderLeft: `5px solid ${habit.color}`}}>
@@ -55,19 +57,21 @@ const StatsPage = () => {
                                 </div>
                                 <div style={styles.counter}>
                                     <span style={{...styles.counterValue, color: habit.color}}>{total}</span>
-                                    <span style={styles.counterLabel}>Łącznie dni</span>
+                                    <span style={styles.counterLabel}>{streakLabel}</span>
                                 </div>
                             </div>
 
-                            <p style={styles.heatmapLabel}>Ostatnie 30 dni</p>
+                            <p style={styles.heatmapLabel}>{heatmapLabel}</p>
                             <div style={styles.heatmap}>
-                                {days.map(day => (
+                                {heatmapData.map(item => (
                                     <div
-                                        key={day.timestamp}
-                                        title={new Date(day.timestamp).toLocaleDateString('pl-PL')}
+                                        key={item.timestamp}
+                                        title={item.label || new Date(item.timestamp).toLocaleDateString('pl-PL')}
                                         style={{
                                             ...styles.dot,
-                                            background: day.completed ? habit.color : '#e9ecef',
+                                            background: item.completed ? habit.color : '#e9ecef',
+                                            width:  habit.frequency === 'monthly' ? '28px' : '18px',
+                                            height: habit.frequency === 'monthly' ? '28px' : '18px',
                                         }}
                                     />
                                 ))}

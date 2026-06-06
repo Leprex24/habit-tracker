@@ -78,3 +78,78 @@ export const getLastNDays = (completions = [], n = 30) => {
     }
     return days
 }
+
+export const isCompletedThisWeek = (completions = []) => {
+    const weekStart = new Date()
+    weekStart.setUTCHours(0, 0, 0, 0)
+    const day = weekStart.getUTCDay()
+    weekStart.setUTCDate(weekStart.getUTCDate() - (day === 0 ? 6 : day - 1))
+
+    const weekEnd = new Date(weekStart)
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6)
+    weekEnd.setUTCHours(23, 59, 59, 999)
+
+    return completions.some(date => {
+        const d = new Date(date)
+        return d >= weekStart && d <= weekEnd
+    })
+}
+
+export const isCompletedThisMonth = (completions = []) => {
+    const now = new Date()
+    return completions.some(date => {
+        const d = new Date(date)
+        return d.getUTCFullYear() === now.getUTCFullYear()
+            && d.getUTCMonth()    === now.getUTCMonth()
+    })
+}
+
+export const isCompletedInPeriod = (completions = [], frequency = 'daily') => {
+    if (frequency === 'weekly') return isCompletedThisWeek(completions)
+    if (frequency === 'monthly') return isCompletedThisMonth(completions)
+    return isCompletedToday(completions)
+}
+
+export const getLastNWeeks = (completions = [], n = 12) => {
+    const weeks = []
+    for (let i = n - 1; i >= 0; i--) {
+        const weekStart = new Date()
+        weekStart.setUTCHours(0, 0, 0, 0)
+        const day = weekStart.getUTCDay()
+        weekStart.setUTCDate(weekStart.getUTCDate() - (day === 0 ? 6 : day - 1) - i * 7)
+
+        const weekEnd = new Date(weekStart)
+        weekEnd.setUTCDate(weekEnd.getUTCDate() + 6)
+        weekEnd.setUTCHours(23, 59, 59, 999)
+
+        weeks.push({
+            timestamp: weekStart.getTime(),
+            label: weekStart.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }),
+            completed: completions.some(date => {
+                const d = new Date(date)
+                return d >= weekStart && d <= weekEnd
+            }),
+        })
+    }
+    return weeks
+}
+
+export const getLastNMonths = (completions = [], n = 12) => {
+    const months = []
+    const now = new Date()
+    for (let i = n - 1; i >= 0; i--) {
+        const year  = now.getUTCFullYear()
+        const month = now.getUTCMonth() - i
+        const d = new Date(Date.UTC(year, month, 1))
+        months.push({
+            timestamp: d.getTime(),
+            label: d.toLocaleDateString('pl-PL', { month: 'short', year: '2-digit' }),
+            completed: completions.some(date => {
+                const c = new Date(date)
+                return c.getUTCFullYear() === d.getUTCFullYear()
+                    && c.getUTCMonth()    === d.getUTCMonth()
+            }),
+        })
+    }
+    return months
+}
